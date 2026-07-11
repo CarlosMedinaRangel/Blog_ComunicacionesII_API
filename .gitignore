@@ -5,7 +5,11 @@
 
 
 /postgres
+/pgadmin
 .env
+
+/ pgAdmin
+pgadmin/
 
 # Logs
 logs
