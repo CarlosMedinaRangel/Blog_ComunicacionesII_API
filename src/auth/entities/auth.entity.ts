@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Post } from 'src/post/entities/post.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -57,6 +58,10 @@ export class User {
   })
   @Column('text', { array: true, default: ['user'] })
   roles!: string[];
+
+  //Relaciones
+  @OneToMany(() => Post, (Post) => Post.user)
+  Post!: Post;
 
   @BeforeInsert()
   checkFilesBeforeInsert() {
