@@ -1,0 +1,25 @@
+services:
+  db:
+    container_name: Blog
+    image: postgres:16.3
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=Comunicaciones2
+      - POSTGRES_DB=BlogServer
+    restart: always
+    ports:
+      - '5431:5432'
+
+  pgAdmin:
+    depends_on:
+      - db
+    image: dpage/pgadmin4:8.6
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin
+    ports:
+      - '8084:80'
+    environment:
+      - PGADMIN_DEFAULT_PASSWORD=Comunicaciones2
+      - PGADMIN_DEFAULT_EMAIL=admin@google.com
+    restart: always
