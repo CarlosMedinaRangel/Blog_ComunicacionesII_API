@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from 'src/auth/entities/auth.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Comment } from 'src/comments/entities/comment.entity';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Timestamp } from 'typeorm/driver/mongodb/bson.typings.js';
 
 @Entity(`POST`)
@@ -54,4 +61,7 @@ export class Post {
 
   @ManyToOne(() => User, (user) => user.Post, { eager: true })
   user!: User;
+
+  @OneToMany(() => Comment, (comment) => comment.post, { onDelete: 'RESTRICT' })
+  comments!: Comment[];
 }

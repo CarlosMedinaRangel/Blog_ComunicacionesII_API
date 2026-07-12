@@ -12,7 +12,7 @@ import { CommonService } from 'src/common/common.service';
 
 @Injectable()
 export class PostService {
-  private readonly logger = new Logger('ProductsService');
+  private readonly logger = new Logger('PostService');
 
   constructor(
     @InjectRepository(Post)
@@ -82,6 +82,7 @@ export class PostService {
         category: term.toUpperCase(),
       })
       .leftJoinAndSelect('post.user', 'user')
+
       .getMany();
 
     if (!post)
@@ -92,6 +93,8 @@ export class PostService {
       posts: post,
     };
   }
+
+  async GetCommentsPost(postid: string) {}
 
   async update(id: string, updatePostDto: UpdatePostDto, user) {
     const post = await this.productPost.preload({
