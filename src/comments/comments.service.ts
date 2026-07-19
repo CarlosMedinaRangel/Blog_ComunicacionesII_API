@@ -177,4 +177,14 @@ export class CommentsService {
       this.commonService.handleExceptions(error, this.logger);
     }
   }
+
+  async DeleteALlcomments() {
+    const query = this.commentRepository.createQueryBuilder('comment');
+
+    try {
+      return await query.delete().where({}).execute();
+    } catch (error: any) {
+      this.commonService.handleExceptions(error, this.logger);
+    }
+  }
 }

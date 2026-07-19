@@ -17,5 +17,5 @@ export class CreateCommentDto {
 
   @IsOptional()
   @IsBoolean()
-  isActive!: boolean;
+  isActive?: boolean;
 }
