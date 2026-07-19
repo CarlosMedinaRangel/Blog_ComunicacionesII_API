@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from 'src/auth/entities/auth.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { PostLike } from 'src/post-likes/entities/post-like.entity';
 import {
   Column,
   Entity,
@@ -64,4 +65,7 @@ export class Post {
 
   @OneToMany(() => Comment, (comment) => comment.post, { onDelete: 'RESTRICT' })
   comments!: Comment[];
+
+  @OneToMany(() => PostLike, (Like) => Like.post)
+  likes!: PostLike[];
 }

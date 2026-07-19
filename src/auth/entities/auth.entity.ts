@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Comment } from 'src/comments/entities/comment.entity';
+import { PostLike } from 'src/post-likes/entities/post-like.entity';
 import { Post } from 'src/post/entities/post.entity';
 import {
   BeforeInsert,
@@ -66,6 +67,9 @@ export class User {
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments!: Comment[];
+
+  @OneToMany(() => PostLike, (like) => like.user)
+  likes!: PostLike[];
 
   @BeforeInsert()
   checkFilesBeforeInsert() {
