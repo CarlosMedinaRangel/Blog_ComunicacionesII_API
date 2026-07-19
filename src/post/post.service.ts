@@ -125,4 +125,14 @@ export class PostService {
       this.CommonService.handleExceptions(error, this.logger);
     }
   }
+
+  async DeleteALlPost() {
+    const query = this.productPost.createQueryBuilder('post');
+
+    try {
+      return await query.delete().where({}).execute();
+    } catch (error: any) {
+      this.CommonService.handleExceptions(error, this.logger);
+    }
+  }
 }

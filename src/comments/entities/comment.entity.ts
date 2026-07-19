@@ -64,4 +64,6 @@ export class Comment {
 
   @RelationId((comment: Comment) => comment.parent)
   parentId!: string | null;
+
+  
 }

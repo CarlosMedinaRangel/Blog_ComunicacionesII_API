@@ -5,6 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { PostModule } from './post/post.module';
 import { CommonModule } from './common/common.module';
 import { CommentsModule } from './comments/comments.module';
+import { PostLikesModule } from './post-likes/post-likes.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { CommentsModule } from './comments/comments.module';
     PostModule,
     CommonModule,
     CommentsModule,
+    PostLikesModule,
+    SeedModule,
   ],
 })
 export class AppModule {}
