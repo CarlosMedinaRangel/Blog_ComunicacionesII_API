@@ -7,6 +7,9 @@ import { CommonModule } from './common/common.module';
 import { CommentsModule } from './comments/comments.module';
 import { PostLikesModule } from './post-likes/post-likes.module';
 import { SeedModule } from './seed/seed.module';
+import { FilesModule } from './files/files.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -25,12 +28,18 @@ import { SeedModule } from './seed/seed.module';
       migrations: [__dirname + '/migrations/*{.ts,.js}'],
       migrationsRun: true,
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'static'), // carpeta física
+      serveRoot: '/static', // prefijo en la URL
+      exclude: ['/api/(.*)'], // no interferir con la API
+    }),
     AuthModule,
     PostModule,
     CommonModule,
     CommentsModule,
     PostLikesModule,
     SeedModule,
+    FilesModule,
   ],
 })
 export class AppModule {}

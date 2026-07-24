@@ -1,24 +1,14 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  ParseUUIDPipe,
-} from '@nestjs/common';
+import { Controller, Get, Post, Param, ParseUUIDPipe } from '@nestjs/common';
 import { PostLikesService } from './post-likes.service';
-import { CreatePostLikeDto } from './dto/create-post-like.dto';
-import { UpdatePostLikeDto } from './dto/update-post-like.dto';
+
 import { ApiBearerAuth, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { Auth } from 'src/auth/Decorators/auth.decorator';
 import { GetUser } from 'src/auth/Decorators/get-user.decorator';
 import { User } from 'src/auth/entities/auth.entity';
 import { ReactionType } from 'src/interfaces/reactionTypes';
 
-@Controller('likes/posts')
 @ApiBearerAuth()
+@Controller('likes/posts')
 export class PostLikesController {
   constructor(private readonly postLikesService: PostLikesService) {}
 

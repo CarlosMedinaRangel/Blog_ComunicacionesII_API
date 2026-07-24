@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Timestamp } from 'typeorm/driver/mongodb/bson.typings.js';
+import { PostImage } from './post-image.entity';
 
 @Entity(`POST`)
 export class Post {
@@ -59,6 +60,12 @@ export class Post {
   tags!: string[];
 
   //Relaciones
+
+  @OneToMany(() => PostImage, (PostImage) => PostImage.Post, {
+    cascade: true,
+    eager: true,
+  })
+  images?: PostImage[];
 
   @ManyToOne(() => User, (user) => user.Post, { eager: true })
   user!: User;

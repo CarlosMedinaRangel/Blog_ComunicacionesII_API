@@ -16,7 +16,9 @@ import { Auth } from 'src/auth/Decorators/auth.decorator';
 import { User } from 'src/auth/entities/auth.entity';
 import { GetUser } from 'src/auth/Decorators/get-user.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}

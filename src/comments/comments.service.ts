@@ -179,10 +179,9 @@ export class CommentsService {
   }
 
   async DeleteALlcomments() {
-    const query = this.commentRepository.createQueryBuilder('comment');
-
     try {
-      return await query.delete().where({}).execute();
+      await this.commentRepository.query('DELETE FROM "comments_closure"');
+      await this.commentRepository.query('DELETE FROM "comments"');
     } catch (error: any) {
       this.commonService.handleExceptions(error, this.logger);
     }
