@@ -2,15 +2,16 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 
 import { User } from 'src/auth/entities/auth.entity';
-import { Post } from 'src/post/entities/post.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { CommentsService } from 'src/comments/comments.service';
 import { PostLikesService } from 'src/post-likes/post-likes.service';
-import { PostService } from 'src/post/post.service';
+import { PostService, PostResponse } from 'src/post/post.service';
 import { initialData } from './data/Seed-Data';
+import { Post } from 'src/post/entities/post.entity';
 
 @Injectable()
 export class SeedService {
@@ -20,9 +21,13 @@ export class SeedService {
     private readonly postService: PostService,
     private readonly commentService: CommentsService,
     private readonly postLikeService: PostLikesService,
+    private readonly configService: ConfigService,
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Post)
+    private readonly productPost: Repository<Post>,
 
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
@@ -36,21 +41,21 @@ export class SeedService {
     await this.insertComments(users, posts);
 
     return {
-      message: `Seed ejecutado: ${users.length} usuarios, ${posts.length} posts, ${initialData.comments.length} hilos de comentarios`,
+      message: `Seed ejecutado: ${users.length} usuarios, ${posts.length} posts`,
     };
   }
 
-  // ── Limpiar tablas en orden (hijos primero, padres al final) ───────────────
+  // ── Limpiar tablas ────────────────────────────────────────────────────────
 
   private async deleteTables() {
     await this.postLikeService.DeleteALlPostLikes();
-    await this.commentService.DeleteALlcomments();
-    await this.postService.DeleteALlPost();
-    await this.userRepository.createQueryBuilder().delete().where({}).execute();
+    await this.commentService.DeleteALlcomments(); // ya borra closure internamente
+    await this.postService.DeleteALlPost(); // ya borra post_images internamente
+    await this.userRepository.query('DELETE FROM "users"');
     this.logger.log('Tablas limpiadas');
   }
 
-  // ── Usuarios ───────────────────────────────────────────────────────────────
+  // ── Usuarios ──────────────────────────────────────────────────────────────
 
   private async insertUsers(): Promise<User[]> {
     const userEntities = initialData.users.map((u) =>
@@ -61,51 +66,63 @@ export class SeedService {
     return saved;
   }
 
-  // ── Posts con usuario aleatorio ────────────────────────────────────────────
+  // ── Posts ─────────────────────────────────────────────────────────────────
 
-  private async insertPosts(users: User[]): Promise<Post[]> {
-    const promises: Promise<Post>[] = initialData.posts.map((post) =>
-      this.postService.create(post, this.getRandomUser(users)),
-    );
+  private async insertPosts(users: User[]): Promise<PostResponse[]> {
+    const hostApi = this.configService.get<string>('HOST_API');
+
+    const promises: Promise<PostResponse>[] = initialData.posts.map((post) => {
+      // Construimos las URLs completas a partir del nombre del archivo
+      // Si ya son URLs completas (http://...) las dejamos igual
+      // Si son nombres de archivo, les añadimos el host
+      const images = post.image.map((img) =>
+        img.startsWith('http') ? img : `${hostApi}/files/post/${img}`,
+      );
+
+      return this.postService.create(
+        { ...post, images },
+        this.getRandomUser(users),
+      );
+    });
+
     const saved = await Promise.all(promises);
     this.logger.log(`${saved.length} posts insertados`);
     return saved;
   }
 
-  // ── Comentarios con subcomentarios de 2 niveles ───────────────────────────
+  // ── Comentarios con 2 niveles ─────────────────────────────────────────────
 
-  private async insertComments(users: User[], posts: Post[]): Promise<void> {
+  private async insertComments(
+    users: User[],
+    posts: PostResponse[],
+  ): Promise<void> {
     for (const seedComment of initialData.comments) {
       const post = posts[seedComment.postIndex];
       const author = users[seedComment.authorIndex];
 
-      // Nivel 0: comentario raíz (sin padre)
+      // Nivel 0: comentario raíz
       const rootComment = await this.commentService.create(
         post.id,
         { content: seedComment.content },
         author,
       );
 
-      // Nivel 1: replies directas al comentario raíz
+      // Nivel 1: replies al comentario raíz
       if (seedComment.replies) {
         for (const seedReply of seedComment.replies) {
-          const replyAuthor = users[seedReply.authorIndex];
-
           const reply = await this.commentService.create(
             post.id,
             { content: seedReply.content, parentId: rootComment.id },
-            replyAuthor,
+            users[seedReply.authorIndex],
           );
 
           // Nivel 2: replies de una reply
           if (seedReply.replies) {
             for (const seedSubReply of seedReply.replies) {
-              const subReplyAuthor = users[seedSubReply.authorIndex];
-
               await this.commentService.create(
                 post.id,
                 { content: seedSubReply.content, parentId: reply.id },
-                subReplyAuthor,
+                users[seedSubReply.authorIndex],
               );
             }
           }
@@ -113,10 +130,10 @@ export class SeedService {
       }
     }
 
-    this.logger.log('Comentarios y subcomentarios insertados');
+    this.logger.log('Comentarios insertados');
   }
 
-  // ── Helper ─────────────────────────────────────────────────────────────────
+  // ── Helper ────────────────────────────────────────────────────────────────
 
   private getRandomUser(users: User[]): User {
     return users[Math.floor(Math.random() * users.length)];

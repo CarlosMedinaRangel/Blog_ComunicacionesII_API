@@ -88,10 +88,8 @@ export class PostLikesService {
   }
 
   async DeleteALlPostLikes() {
-    const query = this.PostLikeRespository.createQueryBuilder('comment');
-
     try {
-      return await query.delete().where({}).execute();
+      return await this.PostLikeRespository.query('DELETE FROM "post_likes"');
     } catch (error: any) {
       this.commonService.handleExceptions(error, this.logger);
     }
