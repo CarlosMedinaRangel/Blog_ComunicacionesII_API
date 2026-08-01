@@ -21,6 +21,14 @@ export class CreatePostDto {
   @MinLength(1)
   Content!: string;
 
+  @IsString()
+  @MinLength(1)
+  Content2!: string;
+  
+  @IsString()
+  @MinLength(1)
+  Content3!: string;
+
   @ApiProperty({
     description: 'La categoría principal a la que pertenece el post',
     example: 'Libros',

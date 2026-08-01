@@ -35,6 +35,12 @@ export class Post {
   @Column('text', { unique: false })
   Content!: string;
 
+  @Column('text', { nullable: true })
+  Content2!: string;
+
+  @Column('text', { nullable: true })
+  Content3!: string;
+
   @ApiProperty({
     example: 'Tecnología',
     description: 'Categoría a la que pertenece el post',
